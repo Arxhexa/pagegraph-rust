@@ -1,9 +1,9 @@
 name: CI
 
 on:
+  # Add workflow_dispatch event to enable manual triggering
+  workflow_dispatch:
   push:
-    tags:
-      - '*'
 
 jobs:
   build-and-release:
