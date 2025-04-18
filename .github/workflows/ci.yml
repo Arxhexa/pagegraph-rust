@@ -1,9 +1,9 @@
 name: CI
 
 on:
-  # Add workflow_dispatch event to enable manual triggering
-  workflow_dispatch:
   push:
+    tags:
+      - '*'
 
 jobs:
   build-and-release:
@@ -34,6 +34,19 @@ jobs:
       - name: Build 'pagegraph-cli' package
         run: cargo build --release -p pagegraph-cli
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: pagegraph-cli-${{ matrix.target }}
+          path: target/release/pagegraph-cli${{ matrix.ext }}
+
+  create-and-upload-release:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -45,12 +58,37 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Release Asset
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Upload Linux Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: target/release/pagegraph-cli${{ matrix.ext }}
-          asset_name: pagegraph-cli-${{ matrix.target }}${{ matrix.ext }}
+          asset_path: artifacts/pagegraph-cli-Linux/pagegraph-cli
+          asset_name: pagegraph-cli-Linux
+          asset_content_type: application/octet-stream
+
+      - name: Upload Macos Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/pagegraph-cli-Macos/pagegraph-cli
+          asset_name: pagegraph-cli-Macos
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/pagegraph-cli-Windows/pagegraph-cli.exe
+          asset_name: pagegraph-cli-Windows.exe
           asset_content_type: application/octet-stream
