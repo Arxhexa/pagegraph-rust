@@ -35,7 +35,7 @@ jobs:
         run: cargo build --release -p pagegraph-cli
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pagegraph-cli-${{ matrix.target }}
           path: target/release/pagegraph-cli${{ matrix.ext }}
@@ -59,7 +59,7 @@ jobs:
           prerelease: false
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
