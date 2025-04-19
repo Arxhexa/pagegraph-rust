@@ -94,20 +94,17 @@ fn build_desc<R: std::io::Read>(
             o => {panic!("Unexpected {:?} in `{}`", o, STR_REP)}
         }
     }
-    let version = version.ok_or_else(|| "Version not found in desc").unwrap();
-    let about = about.ok_or_else(|| "About not found in desc").unwrap();
-    let url = url.ok_or_else(|| "Url not found in desc").unwrap();
-    let is_root = is_root.ok_or_else(|| "Is_root not found in desc").and_then(|s| s.parse::<bool>().map_err(|e| format!("Failed to parse is_root: {}", e))).unwrap();
-    let frame_id = frame_id.ok_or_else(|| "Frame_id not found in desc").and_then(|s| graph::FrameId::try_from(s.as_str()).map_err(|e| format!("Failed to parse frame_id: {}", e))).unwrap();
-    let time = time.ok_or_else(|| "Time not found in desc").unwrap();
+
+    // Add this line to print the frame ID before parsing
+    println!("Parsing frame ID: {}", frame_id.as_ref().unwrap());
 
     graph::PageGraphDescriptor {
-        version,
-        about,
-        url,
-        is_root,
-        frame_id,
-        time,
+        version: version.unwrap(),
+        about: about.unwrap(),
+        url: url.unwrap(),
+        is_root: is_root.unwrap().parse::<bool>().unwrap(),
+        frame_id: graph::FrameId::try_from(frame_id.unwrap().as_str()).unwrap(),
+        time: time.unwrap(),
     }
 }
 
